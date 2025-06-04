@@ -10,7 +10,7 @@ Thank you!
 
 ---
 
-# Auto Swap,pool GTE di MegaETH Tesnet
+# Auto Swap,pool GTE - MegaETH Tesnet
 
 This repository contains a suite of JavaScript (Node.js) scripts designed to automate various DeFi operations such as managing liquidity pools and executing token swaps on EVM-compatible blockchains, specifically targeting the MegaETH Testnet for GTE. Each script serves a specific purpose and can be configured via its internal `CONFIG` object.
 
