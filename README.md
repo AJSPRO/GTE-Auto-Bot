@@ -71,47 +71,52 @@ Key settings: `RPC_URL`, `CHAIN_ID` (should be set for MegaETH Testnet, e.g., 63
 ```bash
 node pool.js
 Follow the on-screen menu.
+Follow the on-screen menu.
 
-2. ETH Swap & Unwrap (swap-eth.js)
-Swaps various tokens to WETH and then unwraps WETH to native ETH on MegaETH Testnet, with a global cooldown.
+### 2. ETH Swap & Unwrap (swap-eth.js)
+Swaps various tokens (from sc.txt) to WETH and then unwraps WETH to native ETH on the MegaETH Testnet. This script is designed for processing multiple wallets and includes a global cooldown mechanism to prevent too frequent operations.
 
 Features (swap-eth.js)
-Token to WETH Swaps: Swaps 50% of specified token balances (from sc.txt) to WETH.
-WETH Unwrapping: Converts all WETH in a wallet to native ETH.
-Operational Modes: Swap only, Unwrap only, or Swap + Unwrap.
-Multi-Wallet: Processes all wallets from pk.txt.
-Cooldown System: Enforces a configurable global cooldown (e.g., 48 hours via cooldown.json) after operations.
-Configuration: RPC, chain (for MegaETH Testnet), router, WETH, gas settings, slippage, cooldown duration.
-User Interface: Interactive menu for mode selection; colored console logs.
+Token to WETH Swaps: Iterates through tokens listed in sc.txt and swaps 50% of their balance to WETH for each wallet.
+WETH Unwrapping: After potential swaps, it unwraps all WETH balance in each wallet to native ETH.
+Operational Modes:
+Swap Only: Performs only the token-to-WETH swaps.
+Unwrap Only: Performs only the WETH-to-ETH unwrapping.
+Swap + Unwrap: Executes both swaps and then unwraps.
+Multi-Wallet Processing: Reads private keys from pk.txt and performs selected operations for each wallet sequentially.
+Cooldown Management: Implements a global cooldown period (configurable, e.g., 48 hours). A cooldown.json file tracks the last execution time, preventing the script from running again until the cooldown has passed. The cooldown is only activated if an operation (swap/unwrap) was actually performed.
+Configuration: Key parameters like RPC URL, Chain ID (for MegaETH Testnet), Router address, WETH address, gas settings, slippage tolerance, and cooldown duration are configurable.
+User Interface: Provides an interactive command-line menu (using inquirer) for selecting the operation mode. It also uses chalk for colored console output, enhancing readability of logs and status messages.
 Configuration (swap-eth.js)
-Key settings: RPC_URL, CHAIN_ID (e.g., 6342), ROUTER_ADDRESS, WETH_ADDRESS, GAS_PRICE, COOLDOWN_HOURS.
+Key settings: RPC_URL, CHAIN_ID (e.g., 6342 for MegaETH Testnet), ROUTER_ADDRESS, WETH_ADDRESS, GAS_PRICE, COOLDOWN_HOURS. Ensure sc.txt is populated with tokens you wish to swap.
 
 Usage (swap-eth.js)
 Bash
 
 node swap-eth.js
-Choose operation mode from the prompt.
+Choose the desired operation mode (Swap, Unwrap, or Swap + Unwrap) from the interactive prompt.
 
-3. General Token Swapper (swap.js)
-Performs a variety of automated token-to-token swaps on MegaETH Testnet in a continuous loop with cooldowns.
+### 3. General Token Swapper (swap.js)
+Performs a variety of automated token-to-token swaps on the MegaETH Testnet. This script is designed to run in a continuous loop, processing multiple wallets with diverse swapping strategies, followed by a lengthy cooldown period before restarting.
 
 Features (swap.js)
 Multi-Stage Swap Strategy per Wallet:
-Initial Swaps: Random number of CUSD -> Random Token swaps.
-Random Swaps: Fixed number of Random Token -> Random Token swaps.
-Targeted Swaps: Random number of CUSD -> BRONTO Token swaps.
-Continuous Operation: Processes all wallets from pk.txt (shuffled), then enters a long cooldown (e.g., 10 hours) before repeating.
-Token Management: Uses sc.txt for token selection.
-Configuration: RPC, chain (for MegaETH Testnet), router, gas settings, slippage, BRONTO token address.
-User Interface: Detailed colored console logs for swaps and balances; cooldown timer.
+Initial CUSD Swaps: Executes a random number of swaps (between 32-55) from CUSD to other random tokens listed in sc.txt. The amount of CUSD for each swap is also randomized (between 100-495 CUSD).
+Random Token Swaps: Performs 10 swaps between two randomly selected tokens from sc.txt (swapping a small, randomized portion of the 'fromToken' balance).
+Targeted BRONTO Swaps: Executes a random number of swaps (between 10-20) from CUSD specifically to a pre-defined BRONTO token address. The CUSD amount is randomized (between 1000-5000 CUSD).
+Continuous Operation & Multi-Wallet: Processes all wallets listed in pk.txt (wallets are shuffled for each main cycle). After all wallets are processed, the script enters a long cooldown period (e.g., 10 hours) before automatically restarting the entire sequence.
+Token Management: Relies on sc.txt for the list of available tokens for swapping (ensure CUSD and BRONTO, if used by name, are correctly defined).
+Configuration: Critical parameters such as RPC URL, Chain ID (for MegaETH Testnet), Router address, gas settings, slippage, and the specific BRONTO token address are configurable.
+User Interface & Logging: Provides detailed, colored console output for each transaction, including balances, token names, and transaction hashes. A timer displays the remaining cooldown period.
+Transaction Retries: Includes a basic retry mechanism (up to 3 attempts) for swap executions in case of transient network issues.
 Configuration (swap.js)
-Key settings: RPC_URL, CHAIN_ID (e.g., 6342), ROUTER_ADDRESS, GAS_PRICE, BRONTO_ADDRESS.
+Key settings: RPC_URL, CHAIN_ID (e.g., 6342 for MegaETH Testnet), ROUTER_ADDRESS, GAS_PRICE, BRONTO_ADDRESS. Ensure sc.txt contains CUSD and other tokens for swapping.
 
 Usage (swap.js)
 Bash
 
 node swap.js
-Runs continuously with periodic cooldowns.
+The script will start processing wallets according to the defined strategies and will run in a continuous loop, with a 10-hour cooldown between each full cycle through all wallets.
 
 Prerequisites
 Node.js: Version 14.x or newer recommended.
